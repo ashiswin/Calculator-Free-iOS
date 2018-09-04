@@ -1,0 +1,6 @@
+framework module Pods_Calculator_Free {
+  umbrella header "Pods-Calculator Free-umbrella.h"
+
+  export *
+  module * { export * }
+}
