@@ -11,15 +11,24 @@ import CoreData
 import InitialsImageView
 
 class MessagingViewController: UITableViewController {
+    /// Handle to XMPP controller instance for current session
     var xmppController: XMPPController?
+    
+    /// Array to hold all people chatting with
     var chats: [String] = []
+    /// CoreData context
     var context: NSManagedObjectContext!
+    
+    /// Selected username to pass on to ChatViewController
     var selectedName: String = ""
     
+    // Interface Builder references
     @IBOutlet var tblChats: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Attempt connection to Jabber server
         do {
             try self.xmppController = XMPPController(hostName: "devostrum.no-ip.info",
                                                                          userJIDString: "testuser1@devostrum.no-ip.info",
@@ -29,14 +38,17 @@ class MessagingViewController: UITableViewController {
             print("Something went wrong")
         }
         
+        // Configure chat buddy table
         tblChats.delegate = self
         tblChats.dataSource = self
         tblChats.tableFooterView = UIView(frame: .zero)
         tblChats.tableFooterView?.isHidden = true
         
+        // Initialize CoreData session
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         context = appDelegate.persistentContainer.viewContext
         
+        // Load chat buddies
         loadChats()
     }
 
@@ -44,10 +56,15 @@ class MessagingViewController: UITableViewController {
         super.didReceiveMemoryWarning()
     }
     
+    /// Function to load chat buddies from CoreData
     func loadChats() {
-        chats = []
+        chats = [] // Clear array
+        
+        // Select all chat buddies
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Chats")
         request.returnsObjectsAsFaults = false
+        
+        // Loop through results and add to array
         do {
             let result = try context.fetch(request)
             for data in result as! [NSManagedObject] {
@@ -59,7 +76,9 @@ class MessagingViewController: UITableViewController {
         }
     }
     
+    /// Function to add a new buddy to chat with
     @IBAction func addBuddy(_ sender: Any) {
+        // Create alert with textfield
         let alert = UIAlertController(title: "Add Chat", message: "Add a new chat buddy using their username", preferredStyle: .alert)
         
         alert.addTextField(configurationHandler: { (textField) -> Void in
@@ -68,11 +87,14 @@ class MessagingViewController: UITableViewController {
         
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak alert] (action) -> Void in
             if let textField = alert?.textFields![0] {
+                // Ignore empty entry
                 if textField.text! == "" {
                     return
                 }
+                
                 // TODO: Check for validity
                 
+                // Create new CoreData entity and save
                 let entity = NSEntityDescription.entity(forEntityName: "Chats", in: self.context)
                 let newChat = NSManagedObject(entity: entity!, insertInto: self.context)
                 newChat.setValue((textField.text)!, forKey: "name")
@@ -87,6 +109,10 @@ class MessagingViewController: UITableViewController {
         
         self.present(alert, animated: true, completion: nil)
     }
+    
+    /////////////////////////////////////////////
+    // UITableViewDelegate Section             //
+    /////////////////////////////////////////////
     
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
@@ -117,6 +143,7 @@ class MessagingViewController: UITableViewController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        // Set references in ChatViewController
         if let vc = segue.destination as? ChatViewController {
             vc.name = selectedName
             vc.xmppController = xmppController

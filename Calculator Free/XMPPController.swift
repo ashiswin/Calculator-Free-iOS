@@ -15,7 +15,7 @@ enum XMPPControllerError: Error {
 
 class XMPPController: NSObject {
     var xmppStream: XMPPStream
-    var parent: ChatViewController?
+    weak var parent: ChatViewController?
     
     let hostName: String
     let userJID: XMPPJID

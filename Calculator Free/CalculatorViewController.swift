@@ -9,12 +9,16 @@
 import UIKit
 
 class CalculatorViewController: UIViewController {
+    /// Interface Builder reference
     @IBOutlet weak var lblMain: UILabel!
     
+    /// Indicates if a decimal has been placed yet
     var decimalPlaced:Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Refresh statusbar
         setNeedsStatusBarAppearanceUpdate()
     }
 
@@ -26,6 +30,7 @@ class CalculatorViewController: UIViewController {
         return .lightContent
     }
     
+    /// Remove last character in string in label (unless 0)
     @IBAction func clearClicked(_ sender: Any) {
         if let text = lblMain.text {
             if text.last == "." {
@@ -38,6 +43,7 @@ class CalculatorViewController: UIViewController {
         }
     }
     
+    /// Negate current text in textfield
     @IBAction func negateClicked(_ sender: Any) {
         if let text = lblMain.text {
             if text.first != "-" {
@@ -49,6 +55,7 @@ class CalculatorViewController: UIViewController {
         }
     }
     
+    /// Append a selected number to label
     @IBAction func numberClicked(_ sender: Any) {
         if let btn = sender as? UIButton {
             if (btn.titleLabel?.text)! == "."{
@@ -68,6 +75,7 @@ class CalculatorViewController: UIViewController {
         }
     }
     
+    /// Perform computation OR check if valid code
     @IBAction func equalsClicked(_ sender: Any) {
         if (lblMain.text)! == "0.314" {
             performSegue(withIdentifier: "segMessaging", sender: nil)
